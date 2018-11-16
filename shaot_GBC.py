@@ -116,7 +116,7 @@ kw1 = {'learning_rate': 0.1, 'max_depth': 3, 'max_features': 0.5,
 # You will need to know how models.py works
 ############################################################
 
-#%%
+
 def get_fitted_model(train, test, choice):
     model_class_ = getattr(models, choice[0])
     model = model_class_(train, test, formula=choice[1])
@@ -137,6 +137,10 @@ def fit_stage1(model_spec, train, test,
         return None, model.make_pred()
 def main():
     model_specs = [['GBC', gbm_formula1, kw1]]
+    train1 = []
+    train2 = []
+    test1 = []
+    test2 = []
     global df
     for train, test, trial_i in utility.train_test_splitter(df,
                                                             0.1, 'ORIG_DTE'):
@@ -159,26 +163,40 @@ def main():
             ds.append(to_append)
             del dall[vin_id]
             
-            fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+#            fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+#    plt.subplot(121)
             
-            ax, d1 = axes[0, 0], ds[0]
+            d1 = ds[0]
             fpr, tpr = utility.get_roc_curve(train['did_dflt'], train['PD_pred'])
-            roc_auc = utility.get_auc(fpr, tpr)
-            ax.plot(fpr, tpr, label='Train AUC = {0:.2f}'.format(roc_auc))
-#                    **PLOT_PARAMS['train roc curve'])
-
+            train1.append(fpr)
+            train2.append(tpr)
+            fpr_average1 = np.mean(train1)
+            tpr_average1 = np.mean(train2)
+#    roc_auc = utility.get_auc(fpr, tpr)
+#    plt.plot(fpr, tpr, label='Train AUC = {0:.2f}'.format(roc_auc))
+    
+#    plt.subplot(122)
             fpr, tpr = utility.get_roc_curve(d1['did_dflt'], d1['PD_pred'])
-            roc_auc = utility.get_auc(fpr, tpr)
-            ax.plot(fpr, tpr, label='Test AUC = {0:.2f}'.format(roc_auc))
- #                   **PLOT_PARAMS['test roc curve'])
-
-            ax.plot([-0.5, 1.5], [-0.5, 1.5])
-            ax.set_xlim([-0.05, 1.05])
-            ax.set_ylim([-0.05, 1.05])
-            ax.set_xlabel('False Positive Rate')
-            ax.set_ylabel('True Positive Rate')
-            ax.set_title('Probability of Default: ROC curve')
-            ax.legend(loc="lower right")
+            test1.append(fpr)
+            test2.append(tpr)
+            fpr_average2 = np.mean(test1)
+            tpr_average2 = np.mean(test2)
+#    roc_auc = utility.get_auc(fpr, tpr)
+#    plt.plot(fpr, tpr, label='Test AUC = {0:.2f}'.format(roc_auc))
+            
+            
+    plt.subplot(121)
+    plt.plot(fpr_average1, tpr_average1, label='Train AUC = {0:.2f}'.format(roc_auc))
+    plt.subplot(122)
+    
+    plt.plot([-0.5, 1.5], [-0.5, 1.5])
+    plt.plot(fpr_average2, tpr_average2, label='Test AUC = {0:.2f}'.format(roc_auc))
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Probability of Default: ROC curve')
+    plt.legend(loc="lower right")
             
 
 if __name__ == '__main__':
