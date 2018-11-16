@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 import statsmodels.api as sm
 import statsmodels.duration.hazard_regression as hzrd_reg
 
-#from lifelines import CoxTimeVaryingFitter
+from lifelines import CoxTimeVaryingFitter
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import (GradientBoostingClassifier,
                               GradientBoostingRegressor,
